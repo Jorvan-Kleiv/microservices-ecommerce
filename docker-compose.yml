@@ -5,7 +5,7 @@ services:
     volumes:
       - pg_data:/var/lib/postgresql/data
     ports:
-      - 5432:5432
+      - "5432:5432"
     environment:
       - POSTGRES_USER=jorvan
       - POSTGRES_PASSWORD=jorvan
@@ -17,7 +17,7 @@ services:
     container_name: pg_container
     image: dpage/pgadmin4
     ports:
-      - 5050:80
+      - "5050:80"
     volumes:
       - pgadmin_data:/var/lib/data
     environment:
@@ -31,7 +31,7 @@ services:
     image: mongo
     restart: unless-stopped
     ports:
-      - 27017:27017
+      - "27017:27017"
     environment:
       MONGO_INITDB_ROOT_USERNAME: jorvan
       MONGO_INITDB_ROOT_PASSWORD: jorvan
@@ -40,7 +40,7 @@ services:
     image: mongo-express
     restart: always
     ports:
-      - 8081:8081
+      - "8081:8081"
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: jorvan
       ME_CONFIG_MONGODB_ADMINPASSWORD: jorvan
@@ -54,14 +54,14 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
     ports:
-      - 2181:2181
+      - "2181:2181"
     networks:
       - micro-net
   kafka:
     image: confluentinc/cp-kafka:latest
     container_name: kafka
     ports:
-      - 9092:9092
+      - "9092:9092"
     depends_on:
       - zookeeper
     environment:
@@ -71,19 +71,41 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+    volumes:
+      - kafka_data:/var/lib/kafka/data
     networks:
       - micro-net
+  kafka-ui:
+    container_name: kafka-ui
+    image: provectuslabs/kafka-ui:latest
+    ports:
+      - "8080:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+    depends_on:
+      - kafka
+    restart: unless-stopped
 
   mail-dev:
     container_name: mail_dev
     image: maildev/maildev
     ports:
-      - 1080:1080
-      - 1025:1025
+      - "1080:1080"
+      - "1025:1025"
+  zipkin:
+    container_name: zipkin
+    image: openzipkin/zipkin
+    ports:
+      - 9411:9411
+    networks:
+      - micro-net
+
 volumes:
   pg_data:
   pgadmin_data:
   mongodb:
+  kafka_data:
 networks:
   micro-net:
     driver: bridge
