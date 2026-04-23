@@ -31,10 +31,10 @@ services:
     image: mongo
     restart: unless-stopped
     ports:
-      - "27017:27017"
+      - "27018:27017"
     environment:
-      MONGO_INITDB_ROOT_USERNAME: jorvan
-      MONGO_INITDB_ROOT_PASSWORD: jorvan
+      - MONGO_INITDB_ROOT_USERNAME=jorvan
+      - MONGO_INITDB_ROOT_PASSWORD=jorvan
 
   mongo-express:
     image: mongo-express
@@ -75,11 +75,12 @@ services:
       - kafka_data:/var/lib/kafka/data
     networks:
       - micro-net
+    restart: unless-stopped
   kafka-ui:
     container_name: kafka-ui
     image: provectuslabs/kafka-ui:latest
     ports:
-      - "8080:8080"
+      - "8012:8080"
     environment:
       KAFKA_CLUSTERS_0_NAME: local
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
@@ -100,6 +101,18 @@ services:
       - 9411:9411
     networks:
       - micro-net
+  keycloak:
+    image: quay.io/keycloak/keycloak
+    container_name: keycloak_ms
+    ports:
+      - "9098:8080"
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    networks:
+      - micro-net
+    command:
+      - "start-dev"
 
 volumes:
   pg_data:
