@@ -4,7 +4,7 @@ spring:
     password: jorvan
     database: customer
     host: localhost
-    port: 27017
+    port: 27018
     authentication-database: admin
 
 server:
